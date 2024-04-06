@@ -1,9 +1,9 @@
-with open("twain_tom_sawyer.txt", 'r') as file: 
+with open("THE_FIVE_ORANGE_PIPS.txt", 'r') as file: 
     lines = [line for line in file]
 
 file.close()
 
-in_file = open("in_file.txt", "w")
+in_file = open("test_file.txt", "w")
 
 punctuations = "';,.!@#$%^&*()_-+=?/|\"\<>:}{[]~`0123456789"
 

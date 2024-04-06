@@ -6,16 +6,6 @@ int ListCtor(LIST *list)
     {
     assert(list);
 
-    ON_DUMP 
-        (
-        if (logfile == NULL)
-            {
-            logfile = fopen("logfile.html", "w");
-            }
-        fprintf(logfile, "<pre>\n");
-        )
-
-
     list->capacity = capacity_list;
 
     list->size     = size_list;
@@ -95,11 +85,6 @@ void ListDtor(LIST* list)
     list->back     = POISON_NUMBER_FOR_VALUE;
 
     free(list->data);
-
-    ON_DUMP
-        (
-        fclose(logfile);
-        )
     }
 
 
@@ -129,8 +114,6 @@ void UpdateParams(LIST* list)
 
 int ListInsert(LIST* list, List_type value, iterator_t index)
     {
-    CHECKERROR(list);
-
     if (list->size + 1 >= list->capacity)
         {
         ListResize(list, list->capacity * size_extend);
@@ -176,8 +159,6 @@ int ListInsert(LIST* list, List_type value, iterator_t index)
 
     list->size++;
 
-    CHECKERROR(list);
-
     return list->status;
     }
 
@@ -199,8 +180,6 @@ int PopBack(LIST* list)
 
 int ListDelete(LIST* list, iterator_t index)
     {
-    CHECKERROR(list);
-
     if (index >= list->capacity)
         {
         return INDEX_BIGGER_THAN_CAPACITY;
@@ -229,8 +208,6 @@ int ListDelete(LIST* list, iterator_t index)
 
     list->size--;
 
-    CHECKERROR(list);
-
     return list->status;
     }
 
@@ -238,8 +215,6 @@ int ListDelete(LIST* list, iterator_t index)
 
 static int ListResize(LIST* list, int new_capacity_list)
     {
-    CHECKERROR(list);
-
     if (new_capacity_list <= ZERO)
         {
         return WRONG_NEW_CAPACITY;
@@ -271,8 +246,6 @@ static int ListResize(LIST* list, int new_capacity_list)
 
     list->free = list->size + 1;
 
-    CHECKERROR(list);
-
     return list->status;    
     }
 
@@ -297,7 +270,7 @@ iterator_t Begin(LIST* list)
 
 iterator_t End(LIST* list)
     {
-    return list->back;
+    return PrevCurIndex(list, list->front);
     }
 
 
@@ -312,85 +285,6 @@ iterator_t FindByIndex(LIST* list, size_t index)
 
     return cur_ind;
     }
-
-
-
-ON_DUMP
-    (
-    void ListDumpFunction(LIST* list, const char* path, const char* signature, unsigned line)
-        {
-        fprintf(logfile, "<font color = \"#964b00\">-----------------------------------------------------------------------\n</font>");
-
-        fprintf(logfile, "<font size = \"+1\">path: %s\n</font>", path);
-        fprintf(logfile, "<font size = \"+1\">in function: %s\n</font>", signature);
-        fprintf(logfile, "<font size = \"+1\">line: %d\n</font>", line);
-        fprintf(logfile, "\n");
-        fprintf(logfile, "size = %d\n", list->size);
-        fprintf(logfile, "capacity = %d\n", list->capacity);
-        fprintf(logfile, "data[%p]\n", list->data);
-        fprintf(logfile, "free = %d\n", list->free);
-        fprintf(logfile, "front = %d\n", list->front);
-        fprintf(logfile, "back = %d\n", list->back);
-
-        fprintf(logfile, "\n");
-        fprintf(logfile, "\n");
-
-        if (list->status != NO_ERROR)
-            {
-            for (size_t j = ZERO; j < NUMBER_OF_ERROR; j++)
-                {
-                if ((list->status & (1 << j)))
-                    {
-                    fprintf(logfile, "<font color = \"red\">ERROR: %s\n</font>", ErrorArray[j + 1].NameError);
-                    }
-                }      
-            }
-
-        else
-            {
-            if (list->data != NULL && list->capacity > ZERO && list != nullptr && list->size >= ZERO)
-                {
-                fprintf(logfile, "data:\n");
-
-                for (size_t i = ZERO; i < list->capacity; i++)
-                    {
-                    fprintf(logfile, "<font color = \"#008000\">*[%0*d] = %d\n</font>", (int)log10(list->capacity) + 1, i, list->data[i]);
-                    }
-
-
-                fprintf(logfile, "\n");
-                fprintf(logfile, "\n");
-
-
-                fprintf(logfile, "next:\n");
-
-                for (size_t i = ZERO; i < list->capacity; i++)
-                    {
-                    fprintf(logfile, "<font color = \"#008000\">*[%0*d] = %d\n</font>", (int)log10(list->capacity) + 1, i, list->data[i].next);
-                    }
-
-
-                fprintf(logfile, "\n");
-                fprintf(logfile, "\n");
-
-
-                fprintf(logfile, "prev:\n");
-
-                for (size_t i = ZERO; i < list->capacity; i++)
-                    {
-                    fprintf(logfile, "<font color = \"#008000\">*[%0*d] = %d\n</font>", (int)log10(list->capacity) + 1, i, list->data[i].prev);
-                    }
-
-                }
-            }
-
-        fprintf(logfile, "<font color = \"#964b00\">-----------------------------------------------------------------------\n</font>");
-        fprintf(logfile, "\n");
-        fprintf(logfile, "\n");
-        fprintf(logfile, "\n");
-        }
-    )
-
 
 
 ON_DUMP
@@ -428,7 +322,7 @@ ON_DUMP
             else
                 {
                 print("node%d[shape=record, width=0.2, style=\"filled\", fillcolor=\"green\","
-                        "label=\" {id: %d | value: %d | next: %d | prev: %d}\"] \n \n",
+                        "label=\" {id: %d | value: %s | next: %d | prev: %d}\"] \n \n",
                         i, i, list->data[i].value, list->data[i].next, list->data[i].prev);
                 }   
             }
@@ -475,8 +369,8 @@ ON_DUMP
         fclose(graph_file);
 
         char shell_command[MAX_COMMAND_LENGTH] = "";
-        sprintf (shell_command, "dot -v -Tpng D:/Cprojects/LIST/List_Index/dotfile.dot -o D:/Cprojects/LIST/List_Index/graph%d.png", dump_number);
-        system (shell_command);
+        sprintf(shell_command, "dot -v -Tpng dotfile.dot -o graph%d.png", dump_number);
+        system(shell_command);
 
 
         log_file = fopen("log_file.html", "a");

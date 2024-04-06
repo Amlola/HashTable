@@ -1,7 +1,6 @@
 #include "../inc/hash_table.h"
 
 
-
 HASH_STATUS HashTableCtor(HashTable* hash_table, size_t table_size) 
     {
     hash_table->size = 0;
@@ -11,7 +10,7 @@ HASH_STATUS HashTableCtor(HashTable* hash_table, size_t table_size)
     if (!hash_table->list)
         return LISTS_ALLOC_ERROR;
 
-    hash_table->hash_function = nullptr;                                               // good
+    hash_table->hash_function = nullptr;                                               
 
     hash_table->count_elem = 0;
 
@@ -31,7 +30,7 @@ void HashTableDtor(HashTable* hash_table)
 
     hash_table->list = nullptr;
 
-    hash_table->size       = 0;                                                             // good
+    hash_table->size       = 0;                                                            
     hash_table->count_elem = 0;
 
     hash_table = nullptr;
@@ -40,15 +39,18 @@ void HashTableDtor(HashTable* hash_table)
 
 HASH_STATUS TableInsert(HashTable* hash_table, const char* word, size_t lenght_word)
     {
-    uint64_t hash_value = hash_table->hash_function(word, lenght_word);
+    hash_t hash_value = hash_table->hash_function(word, lenght_word) % HASH_TABLE_CAPACITY;
 
-    LIST* cur_list = &hash_table->list[hash_value];
+    if (hash_value > HASH_TABLE_CAPACITY)
+        return IMPOSSIBLE_HASH_VALUE;
+
+    LIST* cur_list = &hash_table->list[hash_value]; 
 
     if (cur_list->size == 0) 
-        hash_table->size++; 
+        hash_table->size++;
 
-    if (CheckValueInTable(cur_list, word, lenght_word))                                           // good
-        return VALUE_REPEAT;
+    else 
+        if (CheckValueInTable(cur_list, word, lenght_word)) return VALUE_REPEAT;
 
     PushBack(cur_list, word);
 
@@ -60,16 +62,16 @@ HASH_STATUS TableInsert(HashTable* hash_table, const char* word, size_t lenght_w
 
 HASH_STATUS TableDelete(HashTable* hash_table, const char* word, size_t lenght_word)
     {
-    uint64_t hash_value = hash_table->hash_function(word, lenght_word);
+    hash_t hash_value = hash_table->hash_function(word, lenght_word) % HASH_TABLE_CAPACITY;
 
     LIST* cur_list = &hash_table->list[hash_value];
 
-    iterator_t position = CheckValueInTable(cur_list, word, lenght_word);                           // good
+    iterator_t pos = CheckValueInTable(cur_list, word, lenght_word);                           
 
-    if (!position) 
+    if (!pos) 
         return NOT_FIND_VALUE;
 
-    ListDelete(cur_list, position);
+    ListDelete(cur_list, pos);
 
     hash_table->count_elem--;
 
@@ -80,24 +82,28 @@ HASH_STATUS TableDelete(HashTable* hash_table, const char* word, size_t lenght_w
     }
 
 
-size_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word) 
+iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word) 
     {
-    for (iterator_t i = Begin(list); i < End(list); i = NextCurIndex(list, i)) 
-        {
-        if (strncmp(word, list->data[i].value, lenght_word) == 0)                             // good
-            return i;
-        }
+    iterator_t i = Begin(list);
 
+    while (i != End(list)) 
+        {
+        if (strncmp(word, list->data[i].value, lenght_word) == 0)                             
+            return i;
+
+        i = NextCurIndex(list, i);
+        }
+    
     return 0;
     }
 
 
 bool FindWord(HashTable* hash_table, const char* word, size_t lenght_word)
     {
-    uint64_t hash_value = hash_table->hash_function(word, lenght_word);
+    hash_t hash_value = hash_table->hash_function(word, lenght_word) % HASH_TABLE_CAPACITY;
     
     if (!CheckValueInTable(&hash_table->list[hash_value], word, lenght_word))  
-        return false;                                                                       // good
+        return false;                                                                      
 
     return true;
     }
@@ -116,23 +122,45 @@ HASH_STATUS FillHashTable(HashTable* hash_table, Text* data)
     }
 
 
-void HashTableDump(HashTable* hash_table) 
+void HashTableDump(HashTable* hash_table, size_t table_num) 
     {
     hash_logfile = fopen("hash_logfile.txt", "w");
+
+    fprintf(hash_logfile, "HASH_TABLE №%zu\n", table_num);
+
+    fprintf(hash_logfile, "----------------------------------------------------------------------------------------\n");
 
     int log_size = (int)(log10((double)(HASH_TABLE_CAPACITY))) + 1;
 
     for (size_t hash = 0; hash < HASH_TABLE_CAPACITY; hash++) 
         {
-        fprintf(hash_logfile, "Hash [%0*zu]: ", log_size, hash);
-
         LIST* cur_list = &hash_table->list[hash];
 
-        for (iterator_t i = Begin(cur_list); i < End(cur_list); i = NextCurIndex(cur_list, i))
-            fprintf(hash_logfile, "%d) %s ", i, cur_list->data[i].value);
+        fprintf(hash_logfile, "HASH[%0*zu] Size: %zu\n{\n", log_size, hash, cur_list->size);
 
-        fprintf(hash_logfile, "\n\n");
+        for (iterator_t i = Begin(cur_list); i != End(cur_list); i = NextCurIndex(cur_list, i))
+            {
+            fprintf(hash_logfile, "%d) %s  ", i, cur_list->data[i].value);
+            }
+   
+        fprintf(hash_logfile, "\n}\n\n");
         }
 
     fclose(hash_logfile);
+    }
+
+
+HASH_STATUS GetStatOfHashFunc(HashTable* hash_table, const char* name_file)
+    {
+    FILE* file = fopen(name_file, "w");
+
+    if (!file)
+        return CANT_OPEN_FILE;
+
+    for (size_t i = 0; i < HASH_TABLE_CAPACITY; i++)
+        fprintf(file, "%zu, %zu \n", i, hash_table->list[i].size);
+
+    fclose(file);
+
+    return HASH_OK;
     }

@@ -10,10 +10,9 @@
 
 #ifdef DUMP
     #define ON_DUMP(...) __VA_ARGS__
-    #define ListDump(list_ptr) ListDumpFunction(list_ptr, __FILE__, __PRETTY_FUNCTION__, __LINE__)
     #define ListGraphDump(list_ptr) ListGraphDumpFunction(list_ptr, __FILE__, __PRETTY_FUNCTION__, __LINE__);
-    static FILE* logfile = NULL;
     static FILE* log_file = NULL;
+    static FILE* graph_file = NULL;
 
 
 
@@ -22,24 +21,11 @@
 #endif
 
 
-#define CHECKERROR(list)                                 \
-                    if (ListVerify(list) != NO_ERROR)    \
-                        {                                \
-                        ON_DUMP                          \
-                            (                            \
-                            ListDump(list);              \
-                            )                            \
-                        return list->status;             \
-                        } 
-
 #define INDEX_LIST
 
 #ifdef INDEX_LIST
     typedef int iterator_t;
 #endif
-
-
-static FILE* graph_file = NULL;
 
 
 
@@ -48,7 +34,7 @@ typedef const char* List_type;
 
 
 const int size_list     =   0;
-const int capacity_list =   100;
+const int capacity_list =   10;
 const int size_extend   =   2;
 
 const int ZERO          =   0;
@@ -161,8 +147,6 @@ iterator_t Begin(LIST* list);
 iterator_t End(LIST* list);
 
 void UpdateParams(LIST* list); 
-
-void ListDumpFunction(LIST* list, const char* path, const char* signature, unsigned line);
 
  void ListGraphDumpFunction(LIST* list, const char* path, const char* signature, unsigned line);
 

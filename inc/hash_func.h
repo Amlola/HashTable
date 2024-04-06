@@ -8,15 +8,28 @@
 #include <assert.h>
 #include <string.h>
 
+
+typedef uint32_t hash_t;
+
+
 const size_t HASH_TABLE_CAPACITY = 1279;
+const size_t NUM_OF_BITS = sizeof(hash_t) * 8;
 
 
-uint64_t HashFuncZero(const char* word, size_t lenght_word);
+hash_t HashFuncZero(const char* word, size_t lenght_word);
 
-uint64_t HashFuncFirstLetter(const char* word, size_t lenght_word);
+hash_t HashFuncFirstLetter(const char* word, size_t lenght_word);
 
-uint64_t HashFuncStrlen(const char* word, size_t lenght_word);
+hash_t HashFuncStrlen(const char* word, size_t lenght_word);
 
-uint64_t HashAsciiSum(const char* word, size_t lenght_word);
+hash_t HashFuncSumDivStrlen(const char* word, size_t lenght_word);
 
-uint64_t HashFuncSumDivStrlen(const char* word, size_t len);
+hash_t HashFuncAsciiSum(const char* word, size_t lenght_word);
+
+hash_t HashFuncRor(const char* word, size_t lenght_word);
+
+hash_t HashFuncRol(const char* word, size_t lenght_word);
+
+hash_t HashFuncCRC32(const char* word, size_t lenght_word);
+
+hash_t AsciiSum(const char* word, size_t lenght_word);

@@ -1,13 +1,13 @@
 SANIT_FLAGS = -fsanitize=address,alignment,undefined
-DUMP_FLAG = -D HASH_DUMP
+CMP_FLAG = -D COMPARISON
 
 all: hash
 
-hash: main.o list.o hash_table.o read.o hash_func.o
-	@g++ -g  $(SANIT_FLAGS) $(DUMP_FLAG) -o hash.exe obj/main.o List_Index/list.o obj/hash_table.o obj/read.o obj/hash_func.o
+hash: main.o list.o hash_table.o read.o hash_func.o test.o
+	@g++ -g  $(SANIT_FLAGS) $(CMP_FLAG) -o hash.exe obj/main.o List_Index/list.o obj/hash_table.o obj/read.o obj/hash_func.o obj/test.o
 
 main.o: src/main.cpp
-	@g++ -g  $(SANIT_FLAGS) $(DUMP_FLAG) -c src/main.cpp -o obj/main.o
+	@g++ -g  $(SANIT_FLAGS) $(CMP_FLAG) -c src/main.cpp -o obj/main.o
 
 list.o: List_Index/list.cpp
 	@g++ -g  $(SANIT_FLAGS) -c List_Index/list.cpp -o List_Index/list.o
@@ -20,6 +20,9 @@ read.o: src/read.cpp
 
 hash_func.o: src/hash_func.cpp
 	@g++ -g  $(SANIT_FLAGS) -c src/hash_func.cpp -o obj/hash_func.o
+
+test.o: src/test.cpp
+	@g++ -g  $(SANIT_FLAGS) -c src/test.cpp -o obj/test.o
 
 clean:
 	rm obj/* hash.exe
