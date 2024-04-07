@@ -88,7 +88,7 @@ iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word)
 
     while (i != End(list)) 
         {
-        if (strncmp(word, list->data[i].value, lenght_word) == 0)                             
+        if (strcmp(word, list->data[i].value) == 0)                            
             return i;
 
         i = NextCurIndex(list, i);

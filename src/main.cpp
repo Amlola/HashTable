@@ -48,10 +48,12 @@ HASH_STATUS GetInfoAboutFunc(Text* data)
 
         FillHashTable(&hash_table, data);
 
-        /*if (i == 7) 
-            HashTableDump(&hash_table, i);*/
+        if (i == 7) 
+            HashTableDump(&hash_table, i);
 
         GetStatOfHashFunc(&hash_table, files[i]);
+
+        printf("Func%zu Load factor: %lf\n", i, (double)hash_table.count_elem / (double)HASH_TABLE_CAPACITY);
 
         HashTableDtor(&hash_table);
         }

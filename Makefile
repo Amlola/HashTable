@@ -1,5 +1,5 @@
 SANIT_FLAGS = -fsanitize=address,alignment,undefined
-CMP_FLAG = -D COMPARISON
+CMP_FLAG = #-D COMPARISON
 
 all: hash
 

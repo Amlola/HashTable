@@ -12,7 +12,7 @@
 typedef uint32_t hash_t;
 
 
-const size_t HASH_TABLE_CAPACITY = 9901;
+const size_t HASH_TABLE_CAPACITY = 101;     // 1009
 const size_t NUM_OF_BITS = sizeof(hash_t) * 8;
 
 

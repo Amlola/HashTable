@@ -7,6 +7,7 @@ in_file = open("test_file.txt", "w")
 
 punctuations = "';,.!@#$%^&*()_-+=?/|\"\<>:}{[]~`0123456789"
 
+a = set()
 
 def DeleteMarks(line):
     new_str = ""
@@ -25,7 +26,9 @@ for i in range(len(lines)):
     else:
         words = DeleteMarks(lines[i]).split()
         for j in words:
+            a.add(j.lower())
             j = str(len(j)) + ' ' + j.lower() + '\n'
             in_file.write(j)
 
 in_file.close()
+print(len(a))
