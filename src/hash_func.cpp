@@ -1,6 +1,10 @@
 #include "../inc/hash_func.h"
 
 
+static inline hash_t Ror(hash_t hash_value);
+static inline hash_t Rol(hash_t hash_value);
+
+
 hash_t HashFuncZero(const char* word, size_t lenght_word)
     {
     return 0;
@@ -36,7 +40,7 @@ hash_t HashFuncRor(const char* word, size_t lenght_word)
     hash_t hash_value = 0;
 
     for (size_t i = 0; i < lenght_word; i++) 
-        hash_value = ((hash_value >> 1) | (hash_value << (NUM_OF_BITS - 1))) ^ word[i];
+        hash_value = Ror(hash_value) ^ word[i];
 
     return hash_value;
     }
@@ -47,7 +51,7 @@ hash_t HashFuncRol(const char* word, size_t lenght_word)
     hash_t hash_value = 0;
 
     for (size_t i = 0; i < lenght_word; i++) 
-        hash_value = ((hash_value << 1) | (hash_value >> (NUM_OF_BITS - 1))) ^ word[i];
+        hash_value = Rol(hash_value) ^ word[i];
 
     return hash_value;
     }
@@ -55,23 +59,31 @@ hash_t HashFuncRol(const char* word, size_t lenght_word)
 
 hash_t HashFuncCRC32(const char* word, size_t lenght_word) 
     {
-    unsigned int byte = 0, mask = 0;
-    unsigned int crc = 0xFFFFFFFF;
+    hash_t crc_table[256] = {};
+    hash_t crc = 0;
     
-    for (int i = 0; word[i] != 0; i++) 
+    for (size_t i = 0; i < 256; i++) 
         {
-        byte = word[i];
-
-        crc = crc ^ byte;
+        crc = i;
             
-        for (int j = 7; j >= 0; j--) 
+        for (size_t j = 0; j < 8; j++) 
             {
-            mask = -(crc & 1);
-            crc = (crc >> 1) ^ (0xEDB88320 & mask);
+            if (crc & 1)
+                crc = (crc >> 1) ^ 0xEDB88320;
+            
+            else
+                crc = crc >> 1;
             }
+
+        crc_table[i] = crc;
         }
 
-    return (hash_t)(~crc);
+    crc = 0xFFFFFFFF;
+
+    while (lenght_word--)
+        crc = crc_table[(crc ^ *word++) & 0xFF] ^ (crc >> 8);
+
+    return crc ^ 0xFFFFFFFF;
     }
 
 
@@ -83,4 +95,16 @@ hash_t AsciiSum(const char* word, size_t lenght_word)
         ascii_sum += word[i];
 
     return ascii_sum;
+    }
+
+
+static inline hash_t Ror(hash_t hash_value)
+    {
+    return ((hash_value >> 1) | (hash_value << (NUM_OF_BITS - 1)));
+    }
+
+
+static inline hash_t Rol(hash_t hash_value)
+    {
+    return ((hash_value << 1) | (hash_value >> (NUM_OF_BITS - 1)));
     }

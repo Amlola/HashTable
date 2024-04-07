@@ -1,4 +1,4 @@
-#include "../inc/test.h"
+#include "../inc/hash_table.h"
 
 
 
@@ -34,8 +34,8 @@ HASH_STATUS GetInfoAboutFunc(Text* data)
         HashFuncAsciiSum,        // 3
         HashFuncSumDivStrlen,    // 4
         HashFuncRor,             // 5
-        HashFuncRol              // 6
-        /*HashFuncCRC32            // 7*/
+        HashFuncRol,             // 6
+        HashFuncCRC32            // 7
         };
 
     for (size_t i = 0; i < sizeof(hash_functions) / sizeof(*hash_functions); i++)
@@ -48,16 +48,14 @@ HASH_STATUS GetInfoAboutFunc(Text* data)
 
         FillHashTable(&hash_table, data);
 
-        /*if (i == 3) 
+        /*if (i == 7) 
             HashTableDump(&hash_table, i);*/
 
         GetStatOfHashFunc(&hash_table, files[i]);
 
-        printf("Func: %zu Dispload Factor: %.3lf\n", i, double(hash_table.count_elem) / (double)hash_table.size);
-
         HashTableDtor(&hash_table);
         }
-
+    
     Free(data);
 
     return HASH_OK;
@@ -80,7 +78,7 @@ HASH_STATUS OptimisionPart(Text* data)
 
     GetDataFromFile(input_file, &data_test);
 
-    printf ("FIND_WORDS = %zu\n", GetResultsFindWords(&hash_table, &data_test));
+    printf ("Number of find words = %zu\n", GetResultsFindWords(&hash_table, &data_test));
 
     HashTableDtor(&hash_table);
 

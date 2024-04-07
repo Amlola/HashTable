@@ -65,3 +65,5 @@ HASH_STATUS GetStatOfHashFunc(HashTable* hash_table, const char* name_file);
 HASH_STATUS GetInfoAboutFunc(Text* data);
 
 HASH_STATUS OptimisionPart(Text* data);
+
+size_t GetResultsFindWords(HashTable* hash_table, Text* data);

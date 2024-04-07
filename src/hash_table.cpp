@@ -139,9 +139,7 @@ void HashTableDump(HashTable* hash_table, size_t table_num)
         fprintf(hash_logfile, "HASH[%0*zu] Size: %zu\n{\n", log_size, hash, cur_list->size);
 
         for (iterator_t i = Begin(cur_list); i != End(cur_list); i = NextCurIndex(cur_list, i))
-            {
             fprintf(hash_logfile, "%d) %s  ", i, cur_list->data[i].value);
-            }
    
         fprintf(hash_logfile, "\n}\n\n");
         }
@@ -163,4 +161,15 @@ HASH_STATUS GetStatOfHashFunc(HashTable* hash_table, const char* name_file)
     fclose(file);
 
     return HASH_OK;
+    }
+
+
+size_t GetResultsFindWords(HashTable* hash_table, Text* data)
+    {
+    size_t find_words = 0;
+
+    for (size_t i = 0; i < data->count_n; i++)
+        find_words += (FindWord(hash_table, (data->str + i)->adress, (data->str + i)->length));
+
+    return find_words;
     }
