@@ -13,15 +13,31 @@
 > [!NOTE]
 > В даннной реализации размер Хеш-таблицы простое число. Результат Хеш-функции берется по модулю размера таблицы.
 
+![Окно](img/constant_func.png)
+
+![Окно](img/word[0].png)
+
+![Окно](img/strlen.png)
+
+![Окно](img/ascii.png)
+
+![Окно](img/ascii2.png)
+
+![Окно](img/ror.png)
+
+![Окно](img/rol.png)
+
+![Окно](img/crc32.png)
+
 ![Окно](img/pinoccio.png)
-| Функция\Параметр          |   Дисперсия   |   Мат.Ожидание  |
-|:--------------------------|:-------------:|:---------------:|
-|Returning a constant       | 0             | 0               |
-|Ascii code first letter    | 0             | 0               |
-|Word length                | 0             | 0               |
-|Сhecksum Ascii fisrt size  | 0             | 0               |
-|Сhecksum Ascii second size | 0             | 0               |
-|Checksum divided by length | 0             | 0               |
-|Ror                        | 0             | 0               |
-|Rol                        | 0             | 0               |
-|Crc-32                     | 0             | 0               |
+| Функция\Параметр          |   Дисперсия   |
+|:--------------------------|:-------------:|
+|Returning a constant       | 130661.72     |
+|Ascii code first letter    | 7536.28       |
+|Word length                | 15169.32      |
+|Сhecksum Ascii fisrt size  | 173.83        | 
+|Сhecksum Ascii second size | 588.61        | 
+|Checksum divided by length | 12216.65      | 
+|Ror                        | 31.46         | 
+|Rol                        | 10.43         |
+|Crc-32                     | 7.38          |
