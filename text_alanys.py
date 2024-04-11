@@ -1,11 +1,11 @@
-with open("THE_FIVE_ORANGE_PIPS.txt", 'r') as file: 
+with open("unit_test.txt", 'r') as file: 
     lines = [line for line in file]
 
 file.close()
 
 in_file = open("test_file.txt", "w")
 
-punctuations = "';,.!@#$%^&*()_-+=?/|\"\<>:}{[]~`0123456789"
+punctuations = "';,.!@#$%^&*()_-+=?/|\"\<>:}{[]~`“0123456789"
 
 a = set()
 
@@ -27,6 +27,8 @@ for i in range(len(lines)):
         words = DeleteMarks(lines[i]).split()
         for j in words:
             a.add(j.lower())
+            if (len(j) > 16):
+                print(j)
             j = str(len(j)) + ' ' + j.lower() + '\n'
             in_file.write(j)
 

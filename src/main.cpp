@@ -16,7 +16,29 @@ int main()
 
     #else
 
-    OptimisionPart(&data);
+    HashTable hash_table = {};
+
+    HashTableCtor(&hash_table, HASH_TABLE_CAPACITY);
+
+    hash_table.hash_function = HashFuncSimdCRC32;
+
+    FillHashTable(&hash_table, &data);
+
+    Text data_test = {};
+
+    FILE* test_file = fopen("test_file.txt", "r");
+
+    GetDataFromFile(test_file, &data_test);
+
+    size_t find_words = GetResultsFindWords(&hash_table, &data_test);
+
+    printf("find words = %zu\n", find_words);
+
+    HashTableDtor(&hash_table);
+
+    Free(&data_test);
+
+    Free(&data);
 
     #endif
 
@@ -28,7 +50,7 @@ HASH_STATUS GetInfoAboutFunc(Text* data)
     {  
     hash_t (*hash_functions[])(const char*, size_t) = 
         {
-        HashFuncZero,            // 0
+        HashFuncConstant,        // 0
         HashFuncFirstLetter,     // 1
         HashFuncStrlen,          // 2
         HashFuncAsciiSum,        // 3
@@ -48,8 +70,8 @@ HASH_STATUS GetInfoAboutFunc(Text* data)
 
         FillHashTable(&hash_table, data);
 
-        if (i == 7) 
-            HashTableDump(&hash_table, i);
+        /*if (i == 7)
+            TableDump(&hash_table, i);*/
 
         GetStatOfHashFunc(&hash_table, files[i]);
 
@@ -58,34 +80,6 @@ HASH_STATUS GetInfoAboutFunc(Text* data)
         HashTableDtor(&hash_table);
         }
     
-    Free(data);
-
-    return HASH_OK;
-    }
-
-
-HASH_STATUS OptimisionPart(Text* data) 
-    {
-    HashTable hash_table = {};
-
-    HashTableCtor(&hash_table, HASH_TABLE_CAPACITY);
-
-    hash_table.hash_function = HashFuncRol;
-
-    FillHashTable(&hash_table, data);
-
-    Text data_test = {};
-
-    FILE* input_file = fopen("test_file.txt", "r");
-
-    GetDataFromFile(input_file, &data_test);
-
-    printf ("Number of find words = %zu\n", GetResultsFindWords(&hash_table, &data_test));
-
-    HashTableDtor(&hash_table);
-
-    Free(&data_test);
-
     Free(data);
 
     return HASH_OK;

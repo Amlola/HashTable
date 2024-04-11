@@ -7,12 +7,30 @@
 #include "../inc/hash_func.h"
 
 
-static FILE* hash_logfile = NULL;
+#ifdef DEBUG_TABLE
+    #define ON_DEBUG_TABLE(...) __VA_ARGS__
+    #define TableDump(table_ptr, table_num) HashTableDump(table_ptr, table_num);
+    static FILE* hash_logfile = NULL;
+
+#else
+    #define ON_DEBUG_TABLE(...)
+#endif
+
+
+#define CHECK_HASH_TABLE_ERROR(table)               \
+            ON_DEBUG_TABLE                          \
+                (                                   \
+                if (TableVerify(table) != NO_ERROR) \
+                    {                               \
+                    TableDump(table, 0)             \
+                    return HASH_TABLE_ERROR;        \
+                    }                               \
+                )                                   \
 
 
 const char* const files[] =
     {
-    "data/hashfunc_zero.csv", 
+    "data/hashfunc_constant.csv", 
     "data/hashfunc_[0].csv", 
     "data/hashfunc_strlen.csv", 
     "data/hashfunc_ascii.csv",
@@ -30,8 +48,8 @@ enum HASH_STATUS
     VALUE_REPEAT          = 1 << 1,
     NOT_FIND_VALUE        = 1 << 2,
     LISTS_ALLOC_ERROR     = 1 << 3,
-    IMPOSSIBLE_HASH_VALUE = 1 << 4,
-    CANT_OPEN_FILE        = 1 << 5
+    CANT_OPEN_FILE        = 1 << 4,
+    HASH_TABLE_ERROR      = -1
     };
 
 
@@ -54,16 +72,16 @@ HASH_STATUS TableDelete(HashTable* hash_table, const char* word, size_t lenght_w
 
 iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word);
 
-bool FindWord(HashTable* hash_table, const char* word, size_t lenght_word);
+bool HashTableSearch(HashTable* hash_table, const char* word, size_t lenght_word);
 
 HASH_STATUS FillHashTable(HashTable* hash_table, Text* data);
-
-void HashTableDump(HashTable* hash_table, size_t table_num);
 
 HASH_STATUS GetStatOfHashFunc(HashTable* hash_table, const char* name_file);
 
 HASH_STATUS GetInfoAboutFunc(Text* data);
 
-HASH_STATUS OptimisionPart(Text* data);
-
 size_t GetResultsFindWords(HashTable* hash_table, Text* data);
+
+void HashTableDump(HashTable* hash_table, size_t table_num); 
+
+int TableVerify(HashTable* hash_table);

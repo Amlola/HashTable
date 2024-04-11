@@ -8,17 +8,26 @@
 #include <math.h>
 
 
-#ifdef DUMP
-    #define ON_DUMP(...) __VA_ARGS__
-    #define ListGraphDump(list_ptr) ListGraphDumpFunction(list_ptr, __FILE__, __PRETTY_FUNCTION__, __LINE__);
-    static FILE* log_file = NULL;
-    static FILE* graph_file = NULL;
+
+#define ListGraphDump(list_ptr) ListGraphDumpFunction(list_ptr, __FILE__, __PRETTY_FUNCTION__, __LINE__);
+static FILE* log_file = NULL;
+static FILE* graph_file = NULL;
 
 
+#ifdef DEBUG_LIST
+    #define ON_DEBUG_LIST(...) __VA_ARGS__
 
 #else
-    #define ON_DUMP(...)
+    #define ON_DEBUG_LIST(...)
 #endif
+
+
+#define CHECK_LIST_ERROR(list_ptr)                  \
+        ON_DEBUG_LIST                               \
+            (                                       \
+            if (ListVerify(list_ptr) != NO_ERROR)   \
+                return list_ptr->status             \
+            )                                       \
 
 
 #define INDEX_LIST
@@ -27,11 +36,7 @@
     typedef int iterator_t;
 #endif
 
-
-
 typedef const char* List_type;
-
-
 
 const int size_list     =   0;
 const int capacity_list =   10;
@@ -41,11 +46,10 @@ const int ZERO          =   0;
 const int FREE_INDEX    =  -1;
 
 
-
 const int MAX_COMMAND_LENGTH = 125;
 
 
-#define print(...) fprintf (graph_file, __VA_ARGS__)
+#define print(...) fprintf(graph_file, __VA_ARGS__)
 
 #define POISON_VALUE_FOR_ADRESS (List_type*)0xDED
 
@@ -148,6 +152,4 @@ iterator_t End(LIST* list);
 
 void UpdateParams(LIST* list); 
 
- void ListGraphDumpFunction(LIST* list, const char* path, const char* signature, unsigned line);
-
-
+void ListGraphDumpFunction(LIST* list, const char* path, const char* signature, unsigned line);

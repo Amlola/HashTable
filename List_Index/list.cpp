@@ -1,7 +1,6 @@
 #include "list.h"
 
 
-
 int ListCtor(LIST *list)
     {
     assert(list);
@@ -17,7 +16,6 @@ int ListCtor(LIST *list)
     list->front    = ZERO;
 
     list->back     = ZERO;
-
 
     list->data = (Node*)calloc(list->capacity, sizeof(Node));
 
@@ -36,17 +34,16 @@ int ListCtor(LIST *list)
     }
 
 
-
 int ListVerify(LIST* list)
     {
+    if (list == nullptr)
+        {
+        list->status |= NULL_LIST;
+        }
+        
     if (list->data == nullptr)
         {
         list->status |= NULL_DATA;
-        }
-
-    if (list == NULL)
-        {
-        list->status |= NULL_LIST;
         }
 
     if (list->capacity < ZERO)
@@ -69,7 +66,6 @@ int ListVerify(LIST* list)
     }
 
 
-
 void ListDtor(LIST* list)
     {
     assert(list);
@@ -88,19 +84,16 @@ void ListDtor(LIST* list)
     }
 
 
-
 int PushFront(LIST* list, List_type value)
     {
     return ListInsert(list, value, list->front);
     }
 
 
-
 int PushBack(LIST* list, List_type value)
     {
     return ListInsert(list, value, list->data[list->back].next);
     }
-
 
 
 void UpdateParams(LIST* list) 
@@ -111,9 +104,10 @@ void UpdateParams(LIST* list)
     }
 
 
-
 int ListInsert(LIST* list, List_type value, iterator_t index)
     {
+    CHECK_LIST_ERROR(list);
+
     if (list->size + 1 >= list->capacity)
         {
         ListResize(list, list->capacity * size_extend);
@@ -159,9 +153,10 @@ int ListInsert(LIST* list, List_type value, iterator_t index)
 
     list->size++;
 
+    CHECK_LIST_ERROR(list);
+
     return list->status;
     }
-
 
 
 int PopFront(LIST* list)
@@ -170,16 +165,16 @@ int PopFront(LIST* list)
     }
 
 
-
 int PopBack(LIST* list)
     {
     return ListDelete(list, list->back);
     }
 
 
-
 int ListDelete(LIST* list, iterator_t index)
     {
+    CHECK_LIST_ERROR(list);
+
     if (index >= list->capacity)
         {
         return INDEX_BIGGER_THAN_CAPACITY;
@@ -208,13 +203,16 @@ int ListDelete(LIST* list, iterator_t index)
 
     list->size--;
 
+    CHECK_LIST_ERROR(list);
+
     return list->status;
     }
 
 
-
 static int ListResize(LIST* list, int new_capacity_list)
     {
+    CHECK_LIST_ERROR(list);
+
     if (new_capacity_list <= ZERO)
         {
         return WRONG_NEW_CAPACITY;
@@ -245,6 +243,8 @@ static int ListResize(LIST* list, int new_capacity_list)
     SetList(list, list->size + 1);
 
     list->free = list->size + 1;
+
+    CHECK_LIST_ERROR(list);
 
     return list->status;    
     }
@@ -287,106 +287,102 @@ iterator_t FindByIndex(LIST* list, size_t index)
     }
 
 
-ON_DUMP
-    (
-    void ListGraphDumpFunction(LIST* list, const char* path, const char* signature, unsigned line)
+void ListGraphDumpFunction(LIST* list, const char* path, const char* signature, unsigned line)
+    {
+    assert(list);
+
+    graph_file = fopen("dotfile.dot", "wb");
+
+    static int dump_number = 1;
+
+    print("digraph G {bgcolor=RosyBrown rankdir = TB\n" "splines = ortho; edge[minlen = 3, penwidth = 2; color = blue];\n\n");
+
+    print("label = \"list_dump from function %s, List_Index/%s:%d\";\n", signature, path, line);
+
+    print("Info[shape=record, fillcolor=\"grey\", width=0.2, style=\"filled\","
+            "label=\" {Capacity: %zu | Size: %zu | Free: %d | Front: %d | Back: %d}\"] \n\n",
+            list->capacity, list->size, list->free, list->front, list->back);
+
+    print("{rank = max; node0[shape=record, width=0.2, style=\"filled\", fillcolor=\"purple\","
+                "label=\" {id: 0 | value: NILL | next: %d | prev: %d}\"]} \n \n",
+                list->data[ZERO].next, list->data[ZERO].prev);
+
+    print("{rank = same;\n");
+
+    for (size_t i = 1; i < list->capacity; i++)
         {
-        assert(list);
-
-        graph_file = fopen("dotfile.dot", "wb");
-
-        static int dump_number = 1;
-
-        print("digraph G {bgcolor=RosyBrown rankdir = TB\n" "splines = ortho; edge[minlen = 3, penwidth = 2; color = blue];\n\n");
-
-        print("label = \"list_dump from function %s, List_Index/%s:%d\";\n", signature, path, line);
-
-        print("Info[shape=record, fillcolor=\"grey\", width=0.2, style=\"filled\","
-                "label=\" {Capacity: %d | Size: %d | Free: %d | Front: %d | Back: %d}\"] \n\n",
-                list->capacity, list->size, list->free, list->front, list->back);
-
-        print("{rank = max; node0[shape=record, width=0.2, style=\"filled\", fillcolor=\"purple\","
-                    "label=\" {id: 0 | value: NILL | next: %d | prev: %d}\"]} \n \n",
-                    list->data[ZERO].next, list->data[ZERO].prev);
-
-        print("{rank = same;\n");
-
-        for (size_t i = 1; i < list->capacity; i++)
+        if (list->data[i].prev == FREE_INDEX)
             {
-            if (list->data[i].prev == FREE_INDEX)
-                {
-                print("node%d[shape=record, width=0.2, style=\"filled\", fillcolor=\"red\","
-                        "label=\" {id: %d | value: %s | next: %d | prev: %d}\"] \n \n",
-                        i, i, "POIZON", list->data[i].next, list->data[i].prev);
-                }
-            else
-                {
-                print("node%d[shape=record, width=0.2, style=\"filled\", fillcolor=\"green\","
-                        "label=\" {id: %d | value: %s | next: %d | prev: %d}\"] \n \n",
-                        i, i, list->data[i].value, list->data[i].next, list->data[i].prev);
-                }   
+            print("node%zu[shape=record, width=0.2, style=\"filled\", fillcolor=\"red\","
+                    "label=\" {id: %zu | value: %s | next: %d | prev: %d}\"] \n \n",
+                    i, i, "POIZON", list->data[i].next, list->data[i].prev);
             }
-        
-        print("}\n");
-
-        print("Free[color=orange, style=filled]");
-
-        print("Front[color=orange, style=filled]");
-
-        print("Back[color=orange, style=filled]");
-
-        print("Free->node%d\n", list->free);
-
-        print("Front->node%d\n", list->front);
-
-        print("Back->node%d\n\n", list->back);
-
-        print("edge[color=darkgreen, constraint = true]\n");
-
-        print("node0");
-
-        for (size_t i = 1; i < list->capacity; i++)
+        else
             {
-            print(" -> node%d", i);
-
-            if (i == list->capacity - 1)
-                {
-                print("\n[style=invis, weight = 10000];");
-                }
-            }
-
-        print("\n\n");
-
-        print("edge[style=solid, constraint = false]\n");
-
-        for (size_t i = 1; i < list->capacity; i++)
-            {
-            print("node%d -> node%d;\n", i, list->data[i].next);
-            }
-
-        print("\n}");
-
-        fclose(graph_file);
-
-        char shell_command[MAX_COMMAND_LENGTH] = "";
-        sprintf(shell_command, "dot -v -Tpng dotfile.dot -o graph%d.png", dump_number);
-        system(shell_command);
-
-
-        log_file = fopen("log_file.html", "a");
-
-        fprintf(log_file, "<pre>\n");
-
-        fprintf(log_file, "<img width=\"1100px\" height=\"500px\" src=\"graph%d.png\">", dump_number);
-
-        fprintf(log_file, ".\n");
-            
-        fclose(log_file);
-
-        dump_number++;
+            print("node%zu[shape=record, width=0.2, style=\"filled\", fillcolor=\"green\","
+                    "label=\" {id: %zu | value: %s | next: %d | prev: %d}\"] \n \n",
+                    i, i, list->data[i].value, list->data[i].next, list->data[i].prev);
+            }   
         }
-    )
+    
+    print("}\n");
 
+    print("Free[color=orange, style=filled]");
+
+    print("Front[color=orange, style=filled]");
+
+    print("Back[color=orange, style=filled]");
+
+    print("Free->node%d\n", list->free);
+
+    print("Front->node%d\n", list->front);
+
+    print("Back->node%d\n\n", list->back);
+
+    print("edge[color=darkgreen, constraint = true]\n");
+
+    print("node0");
+
+    for (size_t i = 1; i < list->capacity; i++)
+        {
+        print(" -> node%zu", i);
+
+        if (i == list->capacity - 1)
+            {
+            print("\n[style=invis, weight = 10000];");
+            }
+        }
+
+    print("\n\n");
+
+    print("edge[style=solid, constraint = false]\n");
+
+    for (size_t i = 1; i < list->capacity; i++)
+        {
+        print("node%zu -> node%d;\n", i, list->data[i].next);
+        }
+
+    print("\n}");
+
+    fclose(graph_file);
+
+    char shell_command[MAX_COMMAND_LENGTH] = "";
+    sprintf(shell_command, "dot -v -Tpng dotfile.dot -o graph%d.png", dump_number);
+    system(shell_command);
+
+
+    log_file = fopen("log_file.html", "a");
+
+    fprintf(log_file, "<pre>\n");
+
+    fprintf(log_file, "<img width=\"1100px\" height=\"500px\" src=\"graph%d.png\">", dump_number);
+
+    fprintf(log_file, ".\n");
+        
+    fclose(log_file);
+
+    dump_number++;
+    }
 
 
 static void SetList(LIST* list, size_t size)
