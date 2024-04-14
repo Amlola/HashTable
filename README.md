@@ -88,3 +88,119 @@
 |**Crc-32**                 | 7.38          |
 
 Среди исследованных функций лучшей является **Crc-32**. Этот результат является ожидаемым, поскольку данный алгоритм используется на практике, например в протоколах передачи данных. Во второй части данного проекта будем использовать именно эту хеш-функцию.
+## Оптимизации функций
+
+## Результаты
+### Функция Поиска
+<table>
+    <thead>
+        <tr>
+          <th style="text-align: center" rowspan=2>Версия программы</th>
+        </tr>
+        <tr>
+            <th style="text-align: center">CPU ticks</th>
+            <th style="text-align: center">ускорение от BASE</th>
+            <th style="text-align: center">ускорение от предыдущего</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>DEBUG</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr>
+          <tr>
+            <td>WITHOUT DEBUG</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>NORMAL OPTIMIZATION</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>BASE</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>INLINE CRC-32</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>CRC-32 NASM</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>STRCMP + CRC-32 NASM</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+    </tbody>
+</table>
+
+### Вся программа
+<table>
+    <thead>
+        <tr>
+          <th style="text-align: center" rowspan=2>Версия программы</th>
+        </tr>
+        <tr>
+            <th style="text-align: center">CPU ticks</th>
+            <th style="text-align: center">ускорение от BASE</th>
+            <th style="text-align: center">ускорение от предыдущего</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>DEBUG</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr>
+          <tr>
+            <td>WITHOUT DEBUG</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>NORMAL OPTIMIZATION</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>BASE</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>INLINE CRC-32</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>CRC-32 NASM</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+        <tr> 
+          <tr>
+            <td>STRCMP + CRC-32 NASM</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+            <td style="text-align: center">0</td>
+    </tbody>
+</table>
