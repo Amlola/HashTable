@@ -91,6 +91,26 @@
 ## Оптимизации функций
 
 ## Результаты
+[`Indirect Branch Tracking`](https://edc.intel.com/content/www/us/en/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/010/indirect-branch-tracking/)
+
+![Окно](img/first.png)
+
+![Окно](img/second.png)
+
+![Окно](img/third.png)
+
+![Окно](img/crc_intr.png)
+
+![Окно](img/crc_inline.png)
+
+![Окно](img/inline_crc32.png)
+
+![Окно](img/asm_crc32.png)
+
+![Окно](img/last.png)
+
+
+
 ### Функция Поиска
 <table>
     <thead>
