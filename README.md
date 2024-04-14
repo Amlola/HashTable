@@ -111,13 +111,7 @@
             <td style="text-align: center">0</td>
         <tr>
           <tr>
-            <td>WITHOUT DEBUG</td>
-            <td style="text-align: center">0</td>
-            <td style="text-align: center">0</td>
-            <td style="text-align: center">0</td>
-        <tr> 
-          <tr>
-            <td>NORMAL OPTIMIZATION</td>
+            <td>OPTIMIZATION WITHOUT ASM</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
@@ -128,20 +122,20 @@
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
         <tr> 
-          <tr>
+        <tr>
             <td>INLINE CRC-32</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
         <tr> 
           <tr>
-            <td>CRC-32 NASM</td>
+            <td>CRC-32 ASM</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
         <tr> 
           <tr>
-            <td>STRCMP + CRC-32 NASM</td>
+            <td>STRCMP + CRC-32 ASM</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
@@ -168,13 +162,7 @@
             <td style="text-align: center">0</td>
         <tr>
           <tr>
-            <td>WITHOUT DEBUG</td>
-            <td style="text-align: center">0</td>
-            <td style="text-align: center">0</td>
-            <td style="text-align: center">0</td>
-        <tr> 
-          <tr>
-            <td>NORMAL OPTIMIZATION</td>
+            <td>OPTIMIZATION WITHOUT ASM</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
             <td style="text-align: center">0</td>
