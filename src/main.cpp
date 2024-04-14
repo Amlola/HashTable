@@ -1,7 +1,6 @@
 #include "../inc/hash_table.h"
 
 
-
 int main() 
     {
     Text data = {};
@@ -20,7 +19,7 @@ int main()
 
     HashTableCtor(&hash_table, HASH_TABLE_CAPACITY);
 
-    hash_table.hash_function = HashFuncSimdCRC32;
+    hash_table.hash_function = HashFuncIntrincicCRC32;
 
     FillHashTable(&hash_table, &data);
 

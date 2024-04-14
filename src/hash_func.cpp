@@ -160,7 +160,7 @@ hash_t HashFuncCRC32(const char* word, size_t lenght_word)
     }
 
 
-hash_t HashFuncSimdCRC32(const char* word, size_t lenght_word)
+hash_t HashFuncIntrincicCRC32(const char* word, size_t lenght_word)
     {
     uint32_t hash = 0xFFFFFFFF;
 

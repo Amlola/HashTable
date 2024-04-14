@@ -35,4 +35,4 @@ hash_t HashFuncCRC32(const char* word, size_t lenght_word);
 
 hash_t AsciiSum(const char* word, size_t lenght_word);
 
-hash_t HashFuncSimdCRC32(const char* word, size_t lenght_word);
+hash_t HashFuncIntrincicCRC32(const char* word, size_t lenght_word);

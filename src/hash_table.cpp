@@ -171,7 +171,13 @@ int TableVerify(HashTable* hash_table)
     assert(hash_table);
 
     if (ListVerify(hash_table->list) != NO_ERROR)
-        return HASH_TABLE_ERROR;
+            return HASH_TABLE_ERROR;
+
+    for (size_t i = 0; i < HASH_TABLE_CAPACITY; i++)
+        {
+        if (ListVerify(&hash_table->list[i]) != NO_ERROR)
+            return HASH_TABLE_ERROR;
+        }
 
     return NO_ERROR;
     }
