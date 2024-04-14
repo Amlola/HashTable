@@ -1,7 +1,6 @@
 #include "../inc/read.h"
 
 
-
 long long GetFileSize(FILE* file)
     {
     assert(file);
@@ -24,6 +23,19 @@ void replace_slash_n(Text* data)
         {
         if (*(data->Buf + i) == '\n')
             *(data->Buf + i) = '\0';
+        }
+    }
+
+
+void GetAlignedBuffer(Text* data)
+    {
+    for (size_t i = 0; i < data->count_n; i++)
+        {
+        strcpy(&data->aligned_Buf[i * 32], (data->str + i)->adress);
+        if (i < 5) 
+            {
+            printf("%p\n", &data->aligned_Buf[i * 32]);
+            }
         }
     }
 
@@ -79,11 +91,18 @@ void GetDataFromFile(FILE* file, Text* data)
 
     data->count_n = Number_lines(data);
 
+    data->aligned_Buf = (char*)aligned_alloc(32, data->count_n * 32);
+
+    memset(data->aligned_Buf, 0, data->count_n * 32);
+
     data->str = (String*)calloc(data->count_n, sizeof(String));
 
     replace_slash_n(data);
 
     Parsing_pointers(data);
+
+    for (size_t i = 0; i < data->count_n; i++) 
+        memcpy(data->aligned_Buf + (i * 32), data->str[i].adress, (data->str + i)->length);
     }
 
 
@@ -91,4 +110,5 @@ void Free(Text* data)
     {
     free(data->Buf);
     free(data->str);
+    free(data->aligned_Buf);
     }

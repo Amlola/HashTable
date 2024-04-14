@@ -27,7 +27,7 @@ for i in range(len(lines)):
         words = DeleteMarks(lines[i]).split()
         for j in words:
             a.add(j.lower())
-            if (len(j) > 16):
+            if (len(j) > 32):
                 print(j)
             j = str(len(j)) + ' ' + j.lower() + '\n'
             in_file.write(j)

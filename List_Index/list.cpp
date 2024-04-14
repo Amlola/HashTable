@@ -17,7 +17,7 @@ int ListCtor(LIST *list)
 
     list->back     = ZERO;
 
-    list->data = (Node*)calloc(list->capacity, sizeof(Node));
+    list->data = (Node*)aligned_alloc(32, list->capacity * sizeof(Node));
 
     if (list->data == nullptr)
         {
@@ -185,8 +185,6 @@ int ListDelete(LIST* list, iterator_t index)
         return POP_NULL;
         }
 
-    list->data[index].value = (List_type)POISON_NUMBER_FOR_VALUE;
-
     list->data[list->data[index].prev].next = list->data[index].next;
 
     list->data[list->data[index].next].prev = list->data[index].prev;
@@ -220,7 +218,7 @@ static int ListResize(LIST* list, int new_capacity_list)
 
     list->capacity = new_capacity_list;
 
-    Node* new_data = (Node*)calloc(new_capacity_list, sizeof(Node));
+    Node* new_data = (Node*)aligned_alloc(32, new_capacity_list * sizeof(Node));
 
     if (new_data == nullptr)
         {
@@ -320,7 +318,7 @@ void ListGraphDumpFunction(LIST* list, const char* path, const char* signature, 
         else
             {
             print("node%zu[shape=record, width=0.2, style=\"filled\", fillcolor=\"green\","
-                    "label=\" {id: %zu | value: %s | next: %d | prev: %d}\"] \n \n",
+                    "label=\" {id: %zu | value: %zu | next: %d | prev: %d}\"] \n \n",
                     i, i, list->data[i].value, list->data[i].next, list->data[i].prev);
             }   
         }
@@ -394,8 +392,6 @@ static void SetList(LIST* list, size_t size)
         list->data[i].next  = i + 1;
 
         list->data[i].prev  = FREE_INDEX;
-
-        list->data[i].value = (List_type)POISON_NUMBER_FOR_VALUE;
         }
 
     list->data[list->capacity - 1].next  = ZERO;

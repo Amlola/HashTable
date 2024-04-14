@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <math.h>
+#include <immintrin.h>
 
 
 
@@ -36,7 +37,7 @@ static FILE* graph_file = NULL;
     typedef int iterator_t;
 #endif
 
-typedef const char* List_type;
+typedef __m256i List_type;
 
 const int size_list     =   0;
 const int capacity_list =   10;

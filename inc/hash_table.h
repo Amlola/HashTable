@@ -70,7 +70,7 @@ HASH_STATUS TableInsert(HashTable* hash_table, const char* word, size_t lenght_w
 
 HASH_STATUS TableDelete(HashTable* hash_table, const char* word, size_t lenght_word);
 
-iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word);
+iterator_t CheckValueInTable(LIST* list, List_type avx_key, size_t lenght_word);
 
 bool HashTableSearch(HashTable* hash_table, const char* word, size_t lenght_word);
 

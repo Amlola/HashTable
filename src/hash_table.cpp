@@ -45,13 +45,15 @@ HASH_STATUS TableInsert(HashTable* hash_table, const char* word, size_t lenght_w
 
     LIST* cur_list = &hash_table->list[hash_value]; 
 
+    List_type key = _mm256_load_si256((List_type*)word);
+
     if (cur_list->size == 0) 
         hash_table->size++;
 
     else 
-        if (CheckValueInTable(cur_list, word, lenght_word)) return VALUE_REPEAT;
+        if (CheckValueInTable(cur_list, key, lenght_word)) return VALUE_REPEAT;
 
-    PushBack(cur_list, word);
+    PushBack(cur_list, key);
 
     hash_table->count_elem++;
 
@@ -69,7 +71,9 @@ HASH_STATUS TableDelete(HashTable* hash_table, const char* word, size_t lenght_w
 
     LIST* cur_list = &hash_table->list[hash_value];
 
-    iterator_t pos = CheckValueInTable(cur_list, word, lenght_word);                           
+    List_type key = _mm256_load_si256((List_type*)word);
+
+    iterator_t pos = CheckValueInTable(cur_list, key, lenght_word);                           
 
     if (!pos) 
         return NOT_FIND_VALUE;
@@ -87,13 +91,13 @@ HASH_STATUS TableDelete(HashTable* hash_table, const char* word, size_t lenght_w
     }
 
 
-iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word) 
+iterator_t CheckValueInTable(LIST* list, List_type avx_key, size_t lenght_word) 
     {
     iterator_t i = list->front;
 
     while (i != list->data[list->front].prev) 
         {
-        if (strcmp(word, list->data[i].value) == 0)                            
+        if (_mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->data[i].value)) == -1)                            
             return i;
 
         i = list->data[i].next;
@@ -106,8 +110,10 @@ iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word)
 bool HashTableSearch(HashTable* hash_table, const char* word, size_t lenght_word)
     {
     hash_t hash_value = hash_table->hash_function(word, lenght_word) % HASH_TABLE_CAPACITY;
-    
-    if (!CheckValueInTable(&hash_table->list[hash_value], word, lenght_word))  
+
+    List_type key = _mm256_load_si256((List_type*)word);
+
+    if (!CheckValueInTable(&hash_table->list[hash_value], key, lenght_word))  
         return false;                                                                      
 
     return true;
@@ -118,11 +124,15 @@ HASH_STATUS FillHashTable(HashTable* hash_table, Text* data)
     {
     CHECK_HASH_TABLE_ERROR(hash_table);
 
+    char* ptr = data->aligned_Buf;
+
     for (size_t i = 0; i < data->count_n; i++)
         {
         size_t lenght_word = (data->str + i)->length;
 
-        TableInsert(hash_table, (data->str + i)->adress, lenght_word);
+        TableInsert(hash_table, ptr, lenght_word);
+
+        ptr += 32;
         }
     
     CHECK_HASH_TABLE_ERROR(hash_table);
@@ -157,8 +167,13 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
 
     size_t find_words = 0;
 
+    char* ptr = data->aligned_Buf;
+
     for (size_t i = 0; i < data->count_n; i++)
-        find_words += (HashTableSearch(hash_table, (data->str + i)->adress, (data->str + i)->length));
+        {
+        find_words += (HashTableSearch(hash_table, ptr, (data->str + i)->length));
+        ptr += 32;
+        }
 
     CHECK_HASH_TABLE_ERROR(hash_table);
 
@@ -171,7 +186,13 @@ int TableVerify(HashTable* hash_table)
     assert(hash_table);
 
     if (ListVerify(hash_table->list) != NO_ERROR)
-        return HASH_TABLE_ERROR;
+            return HASH_TABLE_ERROR;
+
+    for (size_t i = 0; i < HASH_TABLE_CAPACITY; i++)
+        {
+        if (ListVerify(&hash_table->list[i]) != NO_ERROR)
+            return HASH_TABLE_ERROR;
+        }
 
     return NO_ERROR;
     }

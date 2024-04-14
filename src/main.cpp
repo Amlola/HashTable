@@ -1,6 +1,7 @@
 #include "../inc/hash_table.h"
 
 
+extern "C" hash_t FuncCrc32(const char* word, size_t lenght_word);
 
 int main() 
     {
@@ -20,7 +21,7 @@ int main()
 
     HashTableCtor(&hash_table, HASH_TABLE_CAPACITY);
 
-    hash_table.hash_function = HashFuncSimdCRC32;
+    hash_table.hash_function = FuncCrc32;
 
     FillHashTable(&hash_table, &data);
 
@@ -36,9 +37,9 @@ int main()
 
     HashTableDtor(&hash_table);
 
-    Free(&data_test);
-
     Free(&data);
+
+    Free(&data_test);
 
     #endif
 

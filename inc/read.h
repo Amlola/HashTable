@@ -22,6 +22,7 @@ struct Text
     char* Buf;
     long long BufSize;
     int count_n;
+    char* aligned_Buf;
     String* str;
     };
 
@@ -37,3 +38,5 @@ int Number_lines(Text* data);
 void GetDataFromFile(FILE* file, Text* data);
 
 void Free(Text* data);
+
+void GetAlignedBuffer(Text* data);

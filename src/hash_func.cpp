@@ -149,6 +149,7 @@ const hash_t crc_table[256] =
     0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
     };
 
+
 hash_t HashFuncCRC32(const char* word, size_t lenght_word) 
     {
     hash_t crc = 0xFFFFFFFF;
@@ -160,12 +161,17 @@ hash_t HashFuncCRC32(const char* word, size_t lenght_word)
     }
 
 
-hash_t HashFuncSimdCRC32(const char* word, size_t lenght_word)
+hash_t HashFuncInlineCRC32(const char* word, size_t lenght_word)
     {
-    uint32_t hash = 0xFFFFFFFF;
+    hash_t hash = 0xFFFFFFFF;
 
     while (*word)
-        hash = _mm_crc32_u8(hash, *word++);
+        {
+        asm ("crc32 %0, %1" 
+            :"=r"(hash) 
+            :"r"(*word++), "r"(hash)
+            );
+        }
 
     return hash;
     }
