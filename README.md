@@ -27,7 +27,7 @@
 ### Функция, возвращающая константу (constant)
 В данном случае всегда возвращается число 5.
 
-![Окно](img/constant_func.png)
+![Окно](img/constant.png)
 
 ### Функция, возвращающая ASCII код первого символа слова (word[0])
 
@@ -81,7 +81,7 @@
 ![Окно](img/pinoccio.png)
 | Функция\Параметр          |   Дисперсия   |
 |:--------------------------|:-------------:|
-|**constant**               | 130661        |
+|**constant**               | 130662        |
 |**strlen**                 | 15169         |
 |**sumdivlen**              | 12217         | 
 |**word[0]**                | 7536          |
@@ -115,7 +115,7 @@
 
 Поэтому в первую очередь выключим верификаторы, а также будем компилировать нашу программу с флагами ```-g -mavx2 -O2```.
 
-### Оптимизация без использования платформозависимового кода
+### Оптимизация без использования платформозависимового кода (WITHOUT ASM)
 В отчете ```callgrind``` можно заметить использование функций ```End```, ```NextCurIndex``` и ```Begin```.  
 
 ![Окно](img/second.png)
@@ -164,7 +164,7 @@ iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word)
 
 На картинке ниже мы можем видеть основные функции, участвующие в поиске слов. Это функция ```strcmp``` (17.65%),  функция поиска слов ```GetResultFindWords``` (12.28%) и функция хеширования ```HashFuncCrc32``` (8.62%). Именно их мы и будем ускорять.  
 
-Также можно заметить, что не малую часть работы программы занимают функции ```GetDataFromFile```, ```strtol``` и ```ParsingPointers```. Но эти функции не участвуют в поиске, а используются для обработки данных из файла. Поэтому их подвергать оптимизации не будем.
+Также можно заметить, что не малую часть работы программы занимают функции ```GetDataFromFile```, ```strtol``` и ```Parsing_pointers```. Но эти функции не участвуют в поиске, а используются для обработки данных из файла. Поэтому их подвергать оптимизации не будем.
 
 ![Окно](img/third.png)
 
@@ -173,7 +173,7 @@ iterator_t CheckValueInTable(LIST* list, const char* word, size_t lenght_word)
 
 Как можно видеть из картинки ниже, при использовании интринсиков функция ```strcmp``` отсутсвует в отчете ```callgrind```.
 
-![Окно](img/last.png)
+![Окно](img/fourth.png)
 
 В результате, получено значительно ускорение функции поиска слов.   
 
@@ -226,7 +226,7 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
     }
 ~~~
 
-Но компилятор, если сравнить отчет ```callgrind``` при компиляции с -O2 и без него, инлайнит функции ```HashTableSearch``` и ```CheckValueInTable``` с -O2, которые являются дочерними для данной. Поэтому количество исполняемых инструкций ```GetResultFindWords``` настолько велико. Соответсвенно, оптимизировать можно любую из них. Но если внимательно проанализировать эти функции, то можно заметить, что в них мало, что можно сооптимизировать. Поскольку большую часть занимают циклы и присваивания.
+Но компилятор, если сравнить отчет ```callgrind``` при компиляции с -O2 и без него, инлайнит функции ```HashTableSearch``` и ```CheckValueInTable``` с -O2, которые являются дочерними для данной. Поэтому количество исполняемых инструкций ```GetResultFindWords``` настолько велико. Соответсвенно, оптимизировать можно любую из них. Но если проанализировать эти функции, то можно заметить, что большую часть занимают циклы и присваивания.
 
 ~~~ C++
 iterator_t CheckValueInTable(LIST* list, List_type avx_key, size_t lenght_word) 
@@ -258,7 +258,7 @@ bool HashTableSearch(HashTable* hash_table, const char* word, size_t lenght_word
     }
 ~~~
 
-Мною были найдены всего 2 объекта оптимизации, которые включены в данные функции.
+Мною были найдены 2 объекта оптимизации, которые включены в данные функции.
 
 ### Оптимизация %
 В языке С взятие остатка от деления выполняется при помощи оператора %. Такой метод позволяет обрабатывать любые размеры таблиц, однако, **предполагается**, что плох излишними затратами времени. Как раз здесь нам и понадобится, что размер хеш-таблицы является степенью двойки. Поскольку можно использовать ассемблерную вставку с использованием ```and``` для взятия остатка от деления:
@@ -293,9 +293,10 @@ bool HashTableSearch(HashTable* hash_table, const char* word, size_t lenght_word
 
  ### Оптимизация присваивания
  Здесь я решил сооптимизировать присваивание результата поиска слова (то есть увеличение счетчика на единицу) с использованием ассемблерной вставки ```inc```, вместо инструкции ```add```.   
+
+![Окно](img/add.png)
    
-   
- Но почему же это должно дать прибавку в скорости? Дело в том, что команда ```inc``` работает быстрее, чем команда ```add``, поскольку в команде ```inc``` не указывается второй операнд. Поэтому чтение из памяти команды ```inc``` выполняется быстрее, чем чтение из памяти команды ```add```.   // возможно поподробнее написать.
+ Но почему же это должно дать прибавку в скорости? Дело в том, что команда ```inc``` работает быстрее, чем команда ```add```, поскольку в команде ```inc``` не указывается второй операнд. Поэтому чтение из памяти команды ```inc``` выполняется быстрее, чем чтение из памяти команды ```add```.   // возможно поподробнее написать.
  
 Функция поиска стала выглядеть следующим образом:  
 
@@ -340,11 +341,12 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
 
 ## Оптимизация CRC-32 + strcmp
 Нашу реализацию CRC-32 можно оптимизировать двумя способами:
- - **Ассемблерная вставка инструкции crc32**
- - **написание функции на ассемблере в отдельном файле**
+ - **Ассемблерная вставка инструкции crc32 (INLINE CRC-32)**
+ - **написание функции на ассемблере в отдельном файле (CRC-32 ASM)**
 
 Но я решил проверить, какой из этих способов окажется наиболее эффективным. Поэтому при помощи программы ```objdump```, которая предназначена для исследования скомпилированных файлов, посмотрим, во что раскрывается каждый из этих способов.
 
+![Окно](img/inline_crc32.png)
 
 В начале функции, в которую включена ассемблерная вставка, используется инструкция ```endbr64```, прочитать про которую можно здесь [`Indirect Branch Tracking`](https://edc.intel.com/content/www/us/en/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/010/indirect-branch-tracking/)
 
@@ -368,6 +370,8 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
 
 После данных оптимизаций отчет ```callgrind``` выглядит следующим образом:
 
+![Окно](img/finally.png)
+
 Функция ```GetResultFindWords``` занимает значимую часть выполнения программы, но как я и говорил раньше, мне не удалось сооптимизировать данную функцию.
 
 ## Результаты
@@ -379,47 +383,41 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
           <th style="text-align: center" rowspan=2>Версия программы</th>
         </tr>
         <tr>
-            <th style="text-align: center">CPU ticks</th>
+            <th style="text-align: center">Ir * 10^6</th>
             <th style="text-align: center">ускорение от BASE</th>
             <th style="text-align: center">ускорение от предыдущего</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>DEBUG</td>
-            <td style="text-align: center">4,795,105,506</td>
+          <tr>
+            <td>INITIAL</td>
+            <td style="text-align: center">2527</td>
             <td style="text-align: center">-</td>
             <td style="text-align: center">-</td>
-        <tr>
+        <tr> 
           <tr>
-            <td>OPTIMIZATION WITHOUT ASM</td>
-            <td style="text-align: center">3,418,126,242</td>
+            <td>WITHOUT ASM (BASE)</td>
+            <td style="text-align: center">1799</td>
             <td style="text-align: center">-</td>
-            <td style="text-align: center">1.403</td>
-        <tr> 
-          <tr>
-            <td>BASE</td>
-            <td style="text-align: center">1,832,850,470</td>
-            <td style="text-align: center">1</td>
-            <td style="text-align: center">1.865</td>
+            <td style="text-align: center">1.41</td>
         <tr> 
         <tr>
-            <td>INLINE CRC-32</td>
-            <td style="text-align: center">1,654,599,543</td>
-            <td style="text-align: center">1.108</td>
-            <td style="text-align: center">1.108</td>
+            <td>STRCMP</td>
+            <td style="text-align: center">904</td>
+            <td style="text-align: center">1.99</td>
+            <td style="text-align: center">1.99</td>
         <tr> 
           <tr>
-            <td>CRC-32 ASM</td>
-            <td style="text-align: center">1,647,851,303</td>
-            <td style="text-align: center">1.112</td>
-            <td style="text-align: center">1.004</td>
+            <td>INLINE CRC-32 + STRCMP</td>
+            <td style="text-align: center">759</td>
+            <td style="text-align: center">2.41</td>
+            <td style="text-align: center">1.19</td>
         <tr> 
           <tr>
-            <td>STRCMP + CRC-32 ASM</td>
-            <td style="text-align: center">788,179,485</td>
-            <td style="text-align: center">2.325</td>
-            <td style="text-align: center">2.091</td>
+            <td>CRC-32 ASM + STRCMP </td>
+            <td style="text-align: center">752</td>
+            <td style="text-align: center">2.44</td>
+            <td style="text-align: center">1.009</td>
     </tbody>
 </table>
 
@@ -430,49 +428,44 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
           <th style="text-align: center" rowspan=2>Версия программы</th>
         </tr>
         <tr>
-            <th style="text-align: center">CPU ticks</th>
+            <th style="text-align: center">Ir * 10^6</th>
             <th style="text-align: center">ускорение от BASE</th>
             <th style="text-align: center">ускорение от предыдущего</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>DEBUG</td>
-            <td style="text-align: center">11,709,608,435</td>
+            <td>INITIAL</td>
+            <td style="text-align: center">5223</td>
             <td style="text-align: center">-</td>
-            <td style="text-align: center">-</td>
+            <td style="text-align: center">1.403</td>
+        <tr> 
         <tr>
-          <tr>
-            <td>OPTIMIZATION WITHOUT ASM</td>
-            <td style="text-align: center">7,282,880,179</td>
+            <td>WITHOUT ASM (BASE)</td>
+            <td style="text-align: center">3,418,126,242</td>
             <td style="text-align: center">-</td>
-            <td style="text-align: center">1.608</td>
+            <td style="text-align: center">1.16</td>
+        <tr> 
+        <tr>
+            <td>STRCMP</td>
+            <td style="text-align: center">3998</td>
+            <td style="text-align: center">1.12</td>
+            <td style="text-align: center">1.12</td>
         <tr> 
           <tr>
-            <td>BASE</td>
-            <td style="text-align: center">4,527,516,884</td>
-            <td style="text-align: center">1</td>
-            <td style="text-align: center">1.609</td>
+            <td>INLINE CRC-32 + STRCMP</td>
+            <td style="text-align: center">3852</td>
+            <td style="text-align: center">1.176</td>
+            <td style="text-align: center">1.004</td>
         <tr> 
           <tr>
-            <td>INLINE CRC-32</td>
-            <td style="text-align: center">4,334,419,874</td>
-            <td style="text-align: center">1.045</td>
-            <td style="text-align: center">1.045</td>
-        <tr> 
-          <tr>
-            <td>CRC-32 ASM</td>
-            <td style="text-align: center"> 4,327,598,151</td>
-            <td style="text-align: center">1.046</td>
+            <td>CRC-32 ASM + STRCMP </td>
+            <td style="text-align: center">3845</td>
+            <td style="text-align: center">1.178</td>
             <td style="text-align: center">1.002</td>
-        <tr> 
-          <tr>
-            <td>STRCMP + CRC-32 ASM</td>
-            <td style="text-align: center">3,881,178,314</td>
-            <td style="text-align: center">1.167</td>
-            <td style="text-align: center">1.116</td>
     </tbody>
 </table>
 
 ## Итог
 Нам удалось ускорить функцию поиска в 2.44, что является отличным результатом. Используя такие инструменты, как ```callgrind``` и ```objdump```, можно находить нужные объекты оптимизации и даже ускорять программу, уже скомпилированную с уровнем оптимизации -O2.  
+Главным фактором 
