@@ -438,7 +438,7 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
             <td>INITIAL</td>
             <td style="text-align: center">5223</td>
             <td style="text-align: center">-</td>
-            <td style="text-align: center">1.403</td>
+            <td style="text-align: center">-</td>
         <tr> 
         <tr>
             <td>WITHOUT ASM (BASE)</td>
