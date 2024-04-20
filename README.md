@@ -348,7 +348,7 @@ size_t GetResultsFindWords(HashTable* hash_table, Text* data)
 
 ![Окно](img/inline_crc32.png)
 
-В начале функции, в которую включена ассемблерная вставка, используется инструкция ```endbr64```, прочитать про которую можно здесь [`Indirect Branch Tracking`](https://edc.intel.com/content/www/us/en/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/010/indirect-branch-tracking/)
+Данные функции идентичны, за исключением того, что в начале функции, в которую включена ассемблерная вставка, используется инструкция ```endbr64```, прочитать про которую можно здесь [`Indirect Branch Tracking`](https://edc.intel.com/content/www/us/en/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/010/indirect-branch-tracking/)
 
 И если сравнить отчет ```callgrind``` о времени, затраченной программой. 
 
